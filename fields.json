@@ -1,0 +1,234 @@
+{
+	"command": {
+		"type": "string",
+		"label": "Comand",
+		"value": "!tts"
+	},
+	"pre": {
+		"type": "string",
+		"label": "Decir antes del texto",
+		"value": "Dice: "
+	},
+	"useCmd": {
+		"group": "General",
+		"type": "checkbox",
+		"label": "Usar Comando"
+	},
+	"reward": {
+		"type": "string",
+		"label": "Recompensa",
+		"value": ""
+	},
+	"useReward": {
+		"group": "General",
+		"type": "checkbox",
+		"label": "Usar Recompensa Personalizada"
+	},
+	"useDefault": {
+		"group": "General",
+		"type": "checkbox",
+		"label": "Usar Recompensa Default(Destacar Mensaje)"
+	},
+	"boolMsg": {
+		"type": "checkbox",
+		"label": "Mostrar Mensaje",
+		"value": true
+	},
+	"isUser": {
+		"type": "checkbox",
+		"label": "escuchar usuario"
+	},
+	"isGuion": {
+		"type": "checkbox",
+		"label": "cambiar _ por espacios"
+	},
+	"subscriber": {
+		"group": "Permisos",
+		"type": "checkbox",
+		"label": "Subs"
+	},
+	"vip": {
+		"group": "Permisos",
+		"type": "checkbox",
+		"label": "Vips"
+	},
+	"moderator": {
+		"group": "Permisos",
+		"type": "checkbox",
+		"label": "Mods",
+		"value": "true"
+	},
+	"all": {
+		"group": "Permisos",
+		"type": "checkbox",
+		"label": "Todos"
+	},
+	"listUser": {
+		"group": "Permisos",
+		"type": "string",
+		"label": "Usuarios de confianza (separados por ,)",
+		"value": ""
+	},
+	"listBans": {
+		"group": "Permisos",
+		"type": "string",
+		"label": "Palabras Baneadas (separados por ,)",
+		"value": ""
+	},
+	"voz": {
+		"type": "dropdown",
+		"label": "Selecciona una voz",
+		"value": "es-mx",
+		"options": {
+			"Enrique": "Enrique España (Inestable)",
+			"Conchita": "Conchita España (Inestable)",
+			"Lucia": "Lucia España (Inestable)",
+			"Mia": "Mia MX (Inestable)",
+			"Miguel": "Migel es-usa (Inestable)",
+			"Penelope": "Penelópe es-usa (Inestable)",
+			"G-es-mx": "Google MX",
+			"G-es-es": "Google ESPAÑA",
+			"tk-es_002": "Tiktok ES Male",
+			"tk-es_mx_002": "Tiktok MX Male",
+			"tk-es_male_m3": "Tiktok MX Male 2",
+			"tk-es_female_f6": "Tiktok MX Female",
+			"tk-es_female_fp1": "Tiktok MX Female 2",
+			"tk-es_mx_female_supermom": "Tiktok MX Female 3",
+			"tk-en_us_001": "Tiktok US Female",
+			"tk-en_us_006": "Tiktok US Male 1",
+			"tk-en_us_007": "Tiktok US Male 2",
+			"tk-en_us_009": "Tiktok US Male 3",
+			"tk-en_us_010": "Tiktok US Male 4",
+			"tk-en_uk_001": "Tiktok UK Male 1",
+			"tk-en_uk_003": "Tiktok UK Male 2",
+			"tk-en_au_001": "Tiktok AU Female",
+			"tk-en_au_002": "Tiktok AU Male",
+			"tk-fr_001": "Tiktok FR Male 1",
+			"tk-fr_002": "Tiktok FR Male 2",
+			"tk-de_001": "Tiktok DE Female",
+			"tk-de_002": "Tiktok DE Male",
+			"tk-br_003": "Tiktok BR Female 2",
+			"tk-br_004": "Tiktok BR Female 3",
+			"tk-br_005": "Tiktok BR Male",
+			"tk-id_001": "Tiktok ID Female",
+			"tk-jp_001": "Tiktok JP Female 1",
+			"tk-jp_003": "Tiktok JP Female 2",
+			"tk-jp_005": "Tiktok JP Female 3",
+			"tk-jp_006": "Tiktok JP Male",
+			"tk-kr_002": "Tiktok KR Male 1",
+			"tk-kr_004": "Tiktok KR Male 2",
+			"tk-kr_003": "Tiktok KR Female",
+			"tk-en_us_ghostface": "Ghostface (Scream) ENG",
+			"tk-en_us_chewbacca": "Chewbacca (starwars) ENG",
+			"tk-en_us_c3po": "C3PO (Starwars) ENG",
+			"tk-en_us_stitch": "Stitch (Lilo & Stitch) ENG",
+			"tk-en_us_rocket": "Rocket (Guardianes de la Galaxia) ENG"
+		}
+	},
+	"volumen": {
+		"type": "slider",
+		"label": "Volumen",
+		"value": 100,
+		"min": 0,
+		"max": 100,
+		"step": 1
+	},
+	"bgColor": {
+		"label": "Background Color",
+		"type": "colorpicker",
+		"value": "rgb(0, 0, 0, 0.5)",
+		"group": "Pantalla"
+	},
+	"fontSize": {
+		"type": "number",
+		"label": "Font size",
+		"value": 22,
+		"group": "Pantalla"
+	},
+	"fontWeight": {
+		"label": "Font Weight",
+		"type": "dropdown",
+		"value": "700",
+		"options": {
+			"100": "Thin (100)",
+			"300": "Light (300)",
+			"400": "Regular (400)",
+			"500": "Medium (500)",
+			"700": "Bold (700)",
+			"900": "Black (900)"
+		},
+		"group": "Pantalla"
+	},
+	"fontColor": {
+		"type": "colorpicker",
+		"label": "Font Color",
+		"value": "rgba(255,255,255,1)",
+		"group": "Pantalla"
+	},
+	"textShadow": {
+		"type": "text",
+		"label": "Text shadow",
+		"value": "rgb(0, 0, 0) 1px 1px 1px",
+		"group": "Pantalla"
+	},
+	"fontName": {
+		"label": "Font Family",
+		"type": "googleFont",
+		"value": "Montserrat",
+		"group": "Pantalla"
+	},
+	"inT": {
+		"type": "dropdown",
+		"label": "Animación de Entrada",
+		"value": "SlideUp",
+		"group": "Pantalla",
+		"options": {
+			"SlideUp": "SlideUp",
+			"SlideDown": "SlideDown",
+			"SlideLeft": "SlideLeft",
+			"SlideRight": "SlideRight",
+			"Fade": "Fade",
+			"Bounce": "Bounce"
+		}
+	},
+	"outT": {
+		"type": "dropdown",
+		"label": "Animacion de Salida",
+		"value": "SlideUp",
+		"group": "Pantalla",
+		"options": {
+			"SlideUp": "SlideUp",
+			"SlideDown": "SlideDown",
+			"SlideLeft": "SlideLeft",
+			"SlideRight": "SlideRight",
+			"Fade": "Fade",
+			"Bounce": "Bounce"
+		}
+	},
+	"bitsEnabled": {
+		"type": "checkbox",
+		"label": "Activar con bits",
+		"group": "Bits"
+	},
+	"minBits": {
+		"type": "number",
+		"label": "bits minimos",
+		"step": 1,
+		"value": 5,
+		"min": 0,
+		"group": "Bits"
+	},
+	"delayBits": {
+		"type": "number",
+		"label": "Tiempo esperar alerta(segundos)",
+		"value": 2.5,
+		"min": 0,
+		"group": "Bits"
+	},
+	"test-tts": {
+		"type": "button",
+		"label": "Test",
+		"value": "test",
+		"group": "Test"
+	}
+}
