@@ -1,8 +1,9 @@
+// Variables y constantes necesarias para la configuración
 let cmd, voz, permitBadge, userPermit, banWords = [], isPlaying = false, inT, outT, volumen, pre;
 let textoPendiente = [], showPendiente = [];
 let customRewards = {};
 let bitsEnabled, minBits, delayBits;
-const TTS_BASE = "https://cors-anywhere.herokuapp.com/https://lazypy.ro/tts/proxy.php";
+const TTS_BASE = "https://lazypy.ro/tts/request_tts.php";
 const TTS_BASE_TT = "https://tiktok-tts.weilnet.workers.dev/api/generation";
 const TTS_BASEG = "http://translate.google.com/translate_tts?ie=UTF-8&total=1&idx=0&client=tw-ob&prev=input&textlen";
 const elements = {
@@ -11,29 +12,48 @@ const elements = {
   sourceG: document.querySelector("#sourceG"),
   audioG: document.querySelector("#audioG"),
 };
-let service = 'Polly';
+let service = 'Google';
 
-let msgQueue = [];
+// Función para cargar JSON
+async function loadJSON(filename) {
+  const response = await fetch(filename);
+  if (!response.ok) {
+    throw new Error(`Error al cargar el archivo ${filename}`);
+  }
+  const data = await response.json();
+  return data;
+}
 
-window.addEventListener('onWidgetLoad', function (obj) {
-  const fieldData = obj.detail.fieldData;
+// Inicialización del widget
+window.addEventListener('onWidgetLoad', async function (obj) {
+  try {
+    const config = await loadJSON('data.json');
+    const fields = await loadJSON('fields.json');
+    initializeWidget(obj, config, fields);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+});
+
+function initializeWidget(obj, config, fields) {
+  // Asignar configuraciones del archivo data.json
+  for (const key in config) {
+    if (config.hasOwnProperty(key)) {
+      window[key] = config[key];
+    }
+  }
+
+  // Asignar configuraciones del archivo fields.json
+  for (const key in fields) {
+    if (fields.hasOwnProperty(key)) {
+      if (fields[key].hasOwnProperty('value')) {
+        window[key] = fields[key].value;
+      }
+    }
+  }
+
   channelName = obj["detail"]["channel"]["username"];
-  cmd = fieldData["command"];
-  voz = fieldData["voz"]; volumen = fieldData["volumen"];
-  isUser = fieldData["isUser"]; pre = fieldData["pre"];
-  isGuion = fieldData["isGuion"];
-  useCmd = fieldData["useCmd"];
-  useReward = fieldData["useReward"];
-  useDefault = fieldData["useDefault"];
-  reward = fieldData["reward"];
-  all = fieldData["all"];
-  inT = fieldData["inT"];
-  outT = fieldData["outT"];
-  boolMsg = fieldData["boolMsg"];
-  bitsEnabled = fieldData["bitsEnabled"];
-  minBits = fieldData["minBits"];
-  delayBits = fieldData["delayBits"];
-  configPermiso(fieldData);
+  configPermiso(fields);
   setRewards(channelName);
   service = voz.includes('G-') ? 'Google' : voz.includes('tk') ? 'tiktok' : 'Polly';
   voz = voz.replace('G-', '');
@@ -42,51 +62,36 @@ window.addEventListener('onWidgetLoad', function (obj) {
   source = document.querySelector("#source");
   audio.addEventListener('ended', end);
   document.querySelector("#audioG").addEventListener('ended', end);
-});
+}
 
+// Manejar eventos de reward y otras interacciones
 window.addEventListener('onEventReceived', function (obj) {
   if (test(obj)) return;
   let command = cmd + ' ';
   let data = obj.detail.event.data;
   let listener = obj.detail.listener;
+
   if (listener == 'cheer-latest') {
-    if (!bitsEnabled) return;
-    let event = obj.detail.event;
-    let msg = obj.detail.event.message;
-    SE_API.cheerFilter(msg).then(msgR => {
-      if (event.amount < minBits) return;
-      if (banW(msg)) return;
-      let txt2 = newText(msg);
-
-      setTimeout(function () {
-        if (!elements.audio.paused || !elements.audioG.paused) {
-          textoPendiente.push(txt2);
-          let pen = { txtPen: msg, dataPen: data };
-          showPendiente.push(pen);
-          if (boolMsg) showMessage(data, msg);
-          return;
-        }
-        if (txt2.length > 1) {
-          for (let i = 1; i < txt2.length; i++) {
-            textoPendiente.push(txt2[i]);
-          }
-          if (service == 'Polly') playTTS(txt2[0]);
-          else if (service == 'Google') ttsGoogle(txt2[0], voz);
-          else ttsTiktok(txt2[0]);
-          if (boolMsg) showMessage(data, msgR);
-        } else {
-          if (service == 'Polly') playTTS(txt);
-          else if (service == 'google') ttsGoogle(msgR, voz);
-          else ttsTiktok(msgR);
-          if (boolMsg) showMessage(data, msg);
-        }
-      }, delayBits * 1000);
-    });
-
-
+    handleCheerEvent(obj);
+  } else if (listener == 'message' || listener == 'reward-redeemed') {
+    handleMessageOrRewardEvent(obj, data, command);
   }
-  let id = obj.detail.event.data.tags['custom-reward-id'];
-  let isDefault = obj.detail.event.data.tags['msg-id'] === "highlighted-message";
+});
+
+function handleCheerEvent(obj) {
+  let event = obj.detail.event;
+  let msg = event.message;
+  SE_API.cheerFilter(msg).then(msgR => {
+    if (event.amount < minBits) return;
+    if (banW(msg)) return;
+    let txt2 = newText(msg);
+    processPendingText(txt2, event, msg, msgR);
+  });
+}
+
+function handleMessageOrRewardEvent(obj, data, command) {
+  let id = data.tags['custom-reward-id'];
+  let isDefault = data.tags['msg-id'] === "highlighted-message";
   if (!data.text.startsWith(command) && id == undefined && !isDefault) {
     console.log("no empieza con " + cmd);
     return;
@@ -102,10 +107,18 @@ window.addEventListener('onEventReceived', function (obj) {
     txt = isUser ? ((isGuion ? data.nick.replace('_', ' ')
       : data.nick) + ' ' + pre + ' ' + txt) : (pre + ' ' + txt);
     let txt2 = newText(txt);
-    console.log('paused ->' + !elements.audio.paused + ' ' + !elements.audioG.paused);
+    processPendingText(txt2, data, msg, msg);
+  } else {
+    console.log('no tiene permiso');
+    return;
+  }
+}
+
+function processPendingText(txt2, data, msg, msgR) {
+  setTimeout(function () {
     if (!elements.audio.paused || !elements.audioG.paused) {
       textoPendiente.push(txt2);
-      let pen = { txtPen: txt, dataPen: data };
+      let pen = { txtPen: msg, dataPen: data };
       showPendiente.push(pen);
       if (boolMsg) showMessage(data, msg);
       return;
@@ -114,22 +127,20 @@ window.addEventListener('onEventReceived', function (obj) {
       for (let i = 1; i < txt2.length; i++) {
         textoPendiente.push(txt2[i]);
       }
-      if (service == 'Polly') playTTS(txt2[0]);
-      else if (service == 'Google') ttsGoogle(txt2[0], voz);
-      else ttsTiktok(txt2[0]);
-      if (boolMsg) showMessage(data, msg);
+      playTextToSpeech(txt2[0]);
+      if (boolMsg) showMessage(data, msgR);
     } else {
-      if (service == 'Polly') playTTS(txt);
-      else if (service == 'google') ttsGoogle(txt, voz);
-      else ttsTiktok(txt);
+      playTextToSpeech(txt);
       if (boolMsg) showMessage(data, msg);
     }
+  }, delayBits * 1000);
+}
 
-  } else {
-    console.log('no tiene permiso');
-    return;
-  }
-});
+function playTextToSpeech(txt) {
+  if (service == 'Polly') playTTS(txt);
+  else if (service == 'Google') ttsGoogle(txt, voz);
+  else ttsTiktok(txt);
+}
 
 function banW(txt) {
   if (banWords.lenght > 0) {
@@ -160,9 +171,9 @@ function showMessage(data, txt) {
   const element = `
     <div data-sender="${uid}" data-msgid="${msgId}" class="message-row animated" id="msg-0">
         <div class="user-box">
-			${badges}${username}
-			<span class="user-message">${message}</span>
-		</div>
+      ${badges}${username}
+      <span class="user-message">${message}</span>
+    </div>
     </div>`;
   console.log(element);
   $('#main').html(element);
@@ -184,7 +195,6 @@ function attachEmotes(msg, txt) {
           let url = result[0]['urls'][1];
           return `<img alt="" src="${url}" class="badge"/>`;
         } else return key;
-
       }
     );
 }
@@ -194,9 +204,7 @@ function end() {
   $('#main').addClass(outT + "Out");
   if (textoPendiente.length > 0 && elements.audio.paused && elements.audioG.paused) {
     let txt = textoPendiente[0];
-    if (service == 'Polly') playTTS(txt);
-    else if (service == 'Google') ttsGoogle(txt, voz);
-    else ttsTiktok(txt);
+    playTextToSpeech(txt);
     if (showPendiente.length > 0) {
       let msgPen = showPendiente[0].txtPen;
       let dataPen = showPendiente[0].dataPen;
@@ -304,20 +312,29 @@ async function playTTS(text) {
   }
 }
 
-
 function ttsGoogle(msg, idioma) {
   console.log('google');
   const audio = elements.audioG;
-  let audioDuration = 0;
   const message = encodeURIComponent(msg);
-  const messageLength = message.length;
-  let url = `${TTS_BASEG}=${messageLength}&q=${message}`;
-  url += `&tl=${idioma}&ttsspeed=1`
-  elements.sourceG.src = url;
+  const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${idioma}&client=tw-ob&q=${message}`;
 
-  audio.load();
-  audio.volume = (volumen / 100);
-  audio.play();
+  fetch(url)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Error en la solicitud TTS de Google');
+      }
+      return response.blob();
+    })
+    .then(blob => {
+      const objectURL = URL.createObjectURL(blob);
+      elements.sourceG.src = objectURL;
+      audio.load();
+      audio.volume = (volumen / 100);
+      audio.play();
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
 }
 
 function ttsTiktok(msg) {
