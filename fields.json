@@ -17,7 +17,7 @@
 	"reward": {
 		"type": "string",
 		"label": "Recompensa",
-		"value": ""
+		"value": "TTS"
 	},
 	"useReward": {
 		"group": "General",

@@ -22,7 +22,7 @@
     "locale": "en-US",
     "command": "",
     "pre": "Dice: ",
-    "reward": "¡Mensaje texto a Voz!",
+    "reward": "TTS",
     "boolMsg": true,
     "isUser": true,
     "isGuion": true,
